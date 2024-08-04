@@ -9,5 +9,4 @@ public class ConectaMemoryApplication {
     public static void main(String[] args) {
         SpringApplication.run(ConectaMemoryApplication.class, args);
     }
-
 }

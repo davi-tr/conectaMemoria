@@ -1,10 +1,7 @@
-package com.conecta.conectamemory.domain.usuario;
+package com.conecta.conectamemory.domain.usuario.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 public record DadosRecordUsuario(
         @NotNull

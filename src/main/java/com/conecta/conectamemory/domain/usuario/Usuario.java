@@ -1,12 +1,10 @@
 package com.conecta.conectamemory.domain.usuario;
 
 
+import com.conecta.conectamemory.domain.usuario.dto.DadosRecordUsuario;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "usuario")
