@@ -27,6 +27,9 @@ public class SecurityConfig {
     private CustomUserDetailsService userDetailsService;
 
     @Autowired
+    private RateLimitFilter rateLimitFilter;
+
+    @Autowired
     SecurityFilter securityFilter;
 
     @Bean
@@ -42,8 +45,8 @@ public class SecurityConfig {
                         .permitAll()
                         .anyRequest().authenticated()
                 )
-
-                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
