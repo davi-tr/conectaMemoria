@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        #title {
+            font-size: 1.5em;
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background-color: #034194;
+            color: #fff;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        #instruction {
+            font-size: 1em;
+            color: #333;
+            padding: 10px;
+            text-align: center;
+        }
+
+        #content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            max-width: 80vw;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            aspect-ratio: 250 / 350;
+            cursor: pointer;
+            background-color: #ffffff;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card-content {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-text {
+            padding: 10px;
+            font-size: 1.2em;
+            z-index: 1;
+            position: relative;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 4px;
+        }
+
+        .card-content img {
+              position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+
+
+        }
+
+        .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.1);
+            background-image: url('hidden_card.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .card.revealed .card-back {
+            opacity: 0;
+        }
+
+        #ranking-div {
+            max-width: 80vw;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        #scoreboard {
+            margin-top: 20px;
+            display: none;
+            width: 80vw;
+            max-width: 100%;
+            padding: 10px;
+            background-color: #fff;
+            border: 2px solid #034194;
+            border-radius: 8px;
+        }
+
+        #all-scores {
+            margin-top: 10px;
+        }
+
+        button {
+            margin: 10px;
+            padding: 8px 16px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #footer {
+            background-color: #034194;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            width: 100%;
+            position: relative;
+            bottom: 0;
+        }
+
+        form {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        form label {
+            margin-bottom: 5px;
+        }
+
+        form input {
+            padding: 8px;
+            margin-bottom: 10px;
+            width: 250px;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        #details-box {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 2px solid #034194;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Priner - Jogo da Memória</div>
+    <p id="instruction">Clique nas cartas para descobrir os pares correspondentes no menor tempo possível e ao completar insira seu nome área de origem!</p>
+
+    <div id="content">
+        <div id="game-board"></div>
+        <button onclick="restartGame()">Atualizar Jogo</button>
+        <div id="ranking-div"></div>
+        <button onclick="toggleScoreboard()">Ver Pontuações</button>
+        <div id="scoreboard">
+            <h2>Todas as Pontuações:</h2>
+            <div id="all-scores"></div>
+        </div>
+        <form id="completion-form" style="display: none;">
+            <label for="name">Nome:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="sector">Setor:</label>
+            <input type="text" id="sector" name="sector" required>
+            <input type="hidden" id="timeElapsed" name="timeElapsed">
+            <button type="submit">Salvar no Ranking</button>
+        </form>
+        <div id="details-box">
+            <p><strong>Nome:</strong> <span id="player-name"></span></p>
+            <p><strong>Setor:</strong> <span id="player-sector"></span></p>
+            <p><strong>Tempo de Acerto:</strong> <span id="player-time"></span></p>
+        </div>
+    </div>
+
+    <script>
+        let cards = [];
+        let revealed = [];
+        let selected = [];
+        let start_time;
+        let game_board = document.getElementById('game-board');
+        let ranking_div = document.getElementById('ranking-div');
+        let completionForm = document.getElementById('completion-form');
+        let detailsBox = document.getElementById('details-box');
+        let scoreboard = document.getElementById('scoreboard');
+        let allScoresDiv = document.getElementById('all-scores');
+
+        let pairs = [
+            { name: 'Nossa Visão', definition: 'Visão 2026 -  Ampliar o nosso mercado de atuação por meio de um portfólio inovador, tornando o Grupo uma escolha de valor e de confiabilidade para as partes relacionadas.', image: 'url_da_imagem_1.jpg' },
+            { name: 'Qualidade', definition: 'Honramos nossas entregas e prezamos pela qualidade dos serviços, produtos e informações.', image: 'url_da_imagem_2.jpg' },
+            { name: 'Segurança', definition: ' Somos rigorosos no cumprimento dos mais elevados níveis de segurança.', image: 'url_da_imagem_3.jpg' },
+            { name: 'Nosso Propósito', definition: 'Construir e preservar ativos industriais por meio de desenvolvimento de pessoas, protegendo vidas e o meio ambiente.', image: 'url_da_imagem_4.jpg' },
+            { name: 'Nossas Soluções', definition: 'Acesso, Habitat, Engenharia de Integridade e Inspeção, Isolamento Térmico e Pintura Industrial', image: 'url_da_imagem_5.jpg' },
+            { name: 'Inovação', definition: ' Perseguimos as melhores soluções, visando maximizar os resultados para cada cliente.', image: 'url_da_imagem_6.jpg' },
+            { name: 'Ética e transparência', definition: ' Agimos com ética e transparência em qualquer circunstância.', image: 'url_da_imagem_7.jpg' },
+            { name: 'Pessoas', definition: 'Valorizamos cada indivíduo, promovemos a diversidade, a inclusão e vibramos com o desenvolvimento do próximo.', image: 'url_da_imagem_8.jpg' }
+        ];
+
+        let hiddenCardImage = 'hidden_card.jpg';
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function initializeGame() {
+            let cardsData = [];
+            pairs.forEach(pair => {
+                cardsData.push({ type: 'name', text: pair.name, image: pair.image });
+                cardsData.push({ type: 'definition', text: pair.definition, image: pair.image });
+            });
+            cards = shuffle(cardsData);
+            renderGame();
+            start_time = new Date();
+        }
+
+        function renderGame() {
+            game_board.innerHTML = '';
+            cards.forEach((card, index) => {
+                let cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                cardElement.setAttribute('data-index', index);
+                cardElement.innerHTML = `
+                    <div class="card-content">
+                        <div class="card-text">${card.text}</div>
+                        <img src="${card.image}" alt="${card.text}">
+                    </div>
+                    <div class="card-back" style="background-image: url('${hiddenCardImage}');"></div>
+                `;
+                cardElement.querySelector('.card-content').style.display = 'none';
+                cardElement.querySelector('.card-back').style.display = 'block';
+                cardElement.addEventListener('click', () => revealCard(index));
+                game_board.appendChild(cardElement);
+            });
+        }
+
+        function revealCard(index) {
+            if (selected.length < 2 && !revealed.includes(index) && !selected.includes(index)) {
+                selected.push(index);
+                let cardElement = game_board.querySelector(`.card[data-index='${index}']`);
+                cardElement.classList.add('revealed');
+                cardElement.querySelector('.card-content').style.display = 'flex';
+                cardElement.querySelector('.card-back').style.display = 'none';
+
+                if (selected.length === 2) {
+                    setTimeout(checkMatch, 1000);
+                }
+            }
+        }
+
+        function checkMatch() {
+            let [index1, index2] = selected;
+            let card1 = cards[index1];
+            let card2 = cards[index2];
+
+            if (
+                (card1.type === 'name' && card2.type === 'definition' && card1.image === card2.image) ||
+                (card1.type === 'definition' && card2.type === 'name' && card1.image === card2.image)
+            ) {
+                revealed.push(index1, index2);
+                selected = [];
+
+                if (revealed.length === cards.length) {
+                    endGame();
+                }
+            } else {
+                let cardElement1 = game_board.querySelector(`.card[data-index='${index1}']`);
+                let cardElement2 = game_board.querySelector(`.card[data-index='${index2}']`);
+
+                cardElement1.classList.remove('revealed');
+                cardElement2.classList.remove('revealed');
+                cardElement1.querySelector('.card-content').style.display = 'none';
+                cardElement1.querySelector('.card-back').style.display = 'block';
+                cardElement1.querySelector('.card-back').style.backgroundImage = `url('${hiddenCardImage}')`;
+                cardElement2.querySelector('.card-content').style.display = 'none';
+                cardElement2.querySelector('.card-back').style.display = 'block';
+                cardElement2.querySelector('.card-back').style.backgroundImage = `url('${hiddenCardImage}')`;
+                selected = [];
+            }
+        }
+
+        function endGame() {
+            let timeElapsed = (new Date() - start_time) / 1000;
+            completionForm.style.display = 'block';
+            document.getElementById('timeElapsed').value = timeElapsed;
+        }
+
+        function restartGame() {
+            revealed = [];
+            selected = [];
+            completionForm.style.display = 'none';
+            detailsBox.style.display = 'none';
+            initializeGame();
+        }
+
+        function toggleScoreboard() {
+            scoreboard.style.display = scoreboard.style.display === 'none' ? 'block' : 'none';
+            if (scoreboard.style.display === 'block') {
+                fetchScores();
+            }
+        }
+
+        async function fetchScores() {
+                try {
+                    let response = await fetch('https://conectamemoria.onrender.com/scoreboard');
+                    let data = await response.json();
+
+                    data.sort((a, b) => a.posicao - b.posicao);
+
+                    allScoresDiv.innerHTML = '';
+                    data.forEach(score => {
+                        let tempoFormatado = score.tempoGasto.toFixed(2);
+                        let scoreElement = document.createElement('div');
+                        scoreElement.textContent = `Posição ${score.posicao}: Nome: ${score.nome}, Setor: ${score.setor}, Tempo: ${tempoFormatado} segundos`;
+                        allScoresDiv.appendChild(scoreElement);
+                    });
+                } catch (error) {
+                    console.error('Erro ao buscar e organizar scores:', error);
+                }
+            }
+
+
+        completionForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                let formData = new FormData(completionForm);
+                let name = formData.get('name');
+                let sector = formData.get('sector');
+                let timeElapsed = parseFloat(formData.get('timeElapsed'));
+
+                let newScore = {
+                    nome: name,
+                    setor: sector,
+                    tempoGasto: timeElapsed
+                };
+
+                try {
+                    await fetch('https://conectamemoria.onrender.com/scoreboard', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(newScore)
+                    });
+
+                    completionForm.style.display = 'none';
+                    detailsBox.style.display = 'block';
+                    document.getElementById('player-name').textContent = name;
+                    document.getElementById('player-sector').textContent = sector;
+                    document.getElementById('player-time').textContent = timeElapsed.toFixed(2);
+
+                    fetchScores();
+                } catch (error) {
+                    console.error('Erro ao enviar e processar o novo score:', error);
+                }
+            });
+
+
+        initializeGame();
+    </script>
+
+    <div id="footer">
+        <p>Priner@2024 - Desenvolvido por Vitor Guedes</p>
+    </div>
+</body>
+</html>
